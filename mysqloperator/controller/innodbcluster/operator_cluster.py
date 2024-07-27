@@ -43,8 +43,12 @@ def on_group_view_change(cluster: InnoDBCluster, members: list[tuple], view_id_c
 def monitor_existing_clusters(clusters: List[InnoDBCluster], logger: Logger) -> None:
     for cluster in clusters:
         if cluster.get_create_time():
-            g_group_monitor.monitor_cluster(
-                cluster, on_group_view_change, logger)
+            try:
+                g_group_monitor.monitor_cluster(
+                    cluster, on_group_view_change, logger)
+            except Exception as exc:
+                logger.warn(f"Error while monitoring {cluster.namespace}/{cluster.name}: {exc}")
+
 
 
 def ensure_backup_schedules_use_current_image(clusters: List[InnoDBCluster], logger: Logger) -> None:
